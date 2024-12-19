@@ -16,6 +16,7 @@ public class ConfigReader {
 	private final static String JSON_KEY_ALLOCATION_MODEL_LOCATION = "allocationModelLocation";
 	private final static String JSON_KEY_RESOURCE_ENVIRONMENT_MODEL_LOCATION = "resourceEnvironmentModelLocation";
 	private final static String JSON_KEY_GRAPH_MODEL_LOCATION = "graphModelSaveLocation";
+	private final static String JSON_KEY_SOURCE_CODE_ANALYSIS_OUTPUT_LOCATION = "sourceCodeAnalysisOutputLocation";
 	/**
 	 * Reads the sourceCodePath from a JSON file and returns it as a string.
 	 *
@@ -168,6 +169,22 @@ public class ConfigReader {
 
 			// Extract and return the value of the "sourceCodeAnalysis" key as a string
 			return jsonObject.getString(JSON_KEY_SOURCE_CODE_ANALYSIS);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static String getSourceCodeAnalysisOutputLocationFromJSON(String jsonFilePath) throws JSONException {
+		try {
+			// Read JSON file content as text
+			String jsonContent = new String(Files.readAllBytes(Paths.get(jsonFilePath)));
+
+			// Create a JSON object from the text
+			JSONObject jsonObject = new JSONObject(jsonContent);
+
+			// Extract and return the value of the "sourceCodeAnalysis" key as a string
+			return jsonObject.getString(JSON_KEY_SOURCE_CODE_ANALYSIS_OUTPUT_LOCATION);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

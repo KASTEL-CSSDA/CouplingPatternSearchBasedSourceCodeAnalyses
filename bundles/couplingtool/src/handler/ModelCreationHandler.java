@@ -68,7 +68,7 @@ public class ModelCreationHandler extends AbstractHandler {
 		
 		if (config == null) {
 			MessageDialog.openInformation(window.getShell(), "Information",
-					"Es wurde keine .json datei übergeben für die Configuration übergeben");
+					"No config provided");
 			return null;
 		}
 		
@@ -78,7 +78,7 @@ public class ModelCreationHandler extends AbstractHandler {
 		try {
 			models = AnalysisModel.createModelsFromConfig(config);
 		} catch (InputException | JSONException e1) {
-			MessageDialog.openError(window.getShell(), "Error", "Die Modelle konnten nicht eingelesen werden.");
+			MessageDialog.openError(window.getShell(), "Error", "Models could not be read");
 			return null;
 		}
 
@@ -100,12 +100,15 @@ public class ModelCreationHandler extends AbstractHandler {
 			return null;
 		}
 	
+		
+		
+		
 		AnalysisCoupling securityCouplingAnalysis = new AnalysisCoupling(sourceCodeAnalysis,
 				patternWeaknessMapper, sourceCodePath, new SpoonASTGraphBuilder(sourceCodePath),
 				archGraphAnnotator);
 
 		try {
-			securityCouplingAnalysis.runSecurityCouplingAnalysis(sourceCodePath);
+			securityCouplingAnalysis.runSecurityCouplingAnalysis(sourceCodePath, models.getSourceCodeAnalysisOutputLocation());
 		} catch (GenerationException | PatternViolationClassException | InputException e) {
 
 			e.printStackTrace();

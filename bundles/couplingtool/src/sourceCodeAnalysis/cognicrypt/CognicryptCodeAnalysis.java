@@ -44,7 +44,7 @@ public class CognicryptCodeAnalysis implements CodeAnalysis {
 	 * @return The list of AbstractResult objects representing analysis results.
 	 */
 	@Override
-	public List<AbstractResult> runCodeAnalysis(String sourceCodeFilePath, PatternWeaknessMapper patternWeaknessMapper) {
+	public List<AbstractResult> runCodeAnalysis(String sourceCodeFilePath, PatternWeaknessMapper patternWeaknessMapper, String sourceCodeAnalyisOutputLocation) {
 		
 		this.mapper = patternWeaknessMapper;
 		

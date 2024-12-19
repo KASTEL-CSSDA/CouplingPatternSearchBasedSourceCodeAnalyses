@@ -70,16 +70,15 @@ public class AnalysisCoupling {
 	 * @throws InputException                 If an input exception occurs during
 	 *                                        analysis.
 	 */
-	public void runSecurityCouplingAnalysis(String sourceCodeFilePath)
+	public void runSecurityCouplingAnalysis(String sourceCodeFilePath, String sourceCodeAnalysisOutputLocation)
 			throws GenerationException, PatternViolationClassException, InputException {
 		
 		graphBuilder.buildASTGraph();
 		graph = graphBuilder.getGraph();
 		archGraphAnnotator.annotateGraph(graph);
 		
-		List<AbstractResult> toolResults = tool.runCodeAnalysis(sourceCodeFilePath, resultMapper);
-
-		//addPatternViolationsToGraph(toolResults, graphBuilder);
+		List<AbstractResult> toolResults = tool.runCodeAnalysis(sourceCodeFilePath, resultMapper, sourceCodeAnalysisOutputLocation);
+		addWeaknessesToGraph(toolResults);
 		buildViolatedSecurityProperties();
 	}
 
@@ -101,15 +100,21 @@ public class AnalysisCoupling {
 	 * @throws PatternViolationClassException If a wrong pattern violation name is
 	 *                                        mapped.
 	 */
-	private void addWeaknessesToGraph(List<AbstractResult> toolResults, ASTGraphBuilder graphBuilder)
+	private void addWeaknessesToGraph(List<AbstractResult> toolResults)
 			throws GenerationException, InputException, PatternViolationClassException {
 		for (AbstractResult currResult : toolResults) {
 
-			Optional<Edge> EdgeOptional = graphBuilder.getEdgeForCalledMethod(currResult.getMethodName());
-			if (EdgeOptional.isPresent()) {
-				Edge edge = EdgeOptional.get();
-
-				assignWeaknessToNode(edge, currResult);
+			for(Node node : graph.getNodes()) {
+				
+				if(node.getClassName().equals(currResult.getClassName()) && node.getMethodName().equals(currResult.getMethodName())) {
+					
+					if(!node.getWeaknesses().contains(currResult.getWeakness())) {
+						node.getWeaknesses().add(currResult.getWeakness());
+					}
+					
+					break;
+				}
+				
 			}
 		}
 	}
@@ -128,7 +133,7 @@ public class AnalysisCoupling {
 	 * @throws InputException                 If an input exception occurs during
 	 *                                        analysis.
 	 */
-	private void assignWeaknessToNode(Edge edge, AbstractResult toolResult)
+	private void assignWeaknessToNode(AbstractResult toolResult)
 			throws PatternViolationClassException, GenerationException, InputException {
 		
 //		IdentifiedVulnerability vulnerability = CouplingGraphPatternViolationModelGenerator.generateIdentifiedVulnerability();

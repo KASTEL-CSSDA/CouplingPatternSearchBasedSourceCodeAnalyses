@@ -16,6 +16,6 @@ public interface CodeAnalysis {
 	 * @param sourceCodeFilePath The path to the source code file to be analyzed.
 	 * @return A list of abstract results from the code analysis.
 	 */
-	public List<AbstractResult> runCodeAnalysis(String sourceCodeFilePath, PatternWeaknessMapper patternWeaknessMapper);
+	public List<AbstractResult> runCodeAnalysis(String sourceCodeFilePath, PatternWeaknessMapper patternWeaknessMapper, String sourceCodeAnalysisOutputLocation);
 
 }

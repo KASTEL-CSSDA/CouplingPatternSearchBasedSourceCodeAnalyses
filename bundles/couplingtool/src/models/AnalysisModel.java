@@ -32,6 +32,12 @@ public class AnalysisModel {
 	private final Path baseFolder;
 	private final String sourceCodePath;
 	private final String sourceCodeAnalysisName;
+	private final String sourceCodeAnalysisOutputLocation;
+
+	public String getSourceCodeAnalysisOutputLocation() {
+		return sourceCodeAnalysisOutputLocation;
+	}
+
 
 	public String getSourceCodeAnalysisName() {
 		return sourceCodeAnalysisName;
@@ -50,12 +56,13 @@ public class AnalysisModel {
 	 * @param rootsecPropPatternViolationPath The path to the
 	 *                                        RootSecPropPatternViolation model.
 	 */
-	public AnalysisModel(InputModelsAccessAnalysis inputModels, Path baseFolder, String sourceCodePath, String sourceCodeAnalysisName) {
+	public AnalysisModel(InputModelsAccessAnalysis inputModels, Path baseFolder, String sourceCodePath, String sourceCodeAnalysisName, String sourceCodeAnalysisOutputLocation) {
 
 		this.baseFolder = baseFolder;
 		this.inputModels = inputModels;
 		this.sourceCodePath = sourceCodePath;
 		this.sourceCodeAnalysisName = sourceCodeAnalysisName;
+		this.sourceCodeAnalysisOutputLocation = sourceCodeAnalysisOutputLocation;
 
 	}
 
@@ -110,12 +117,13 @@ public class AnalysisModel {
 		PathValidator.validatePath(configPathString);
 
 		String sourceCodeAnalysisName = ConfigReader.getSourceCodeAnalysisNameFromJSON(configPathString);
+		String sourceCodeAnalysisOutputLocation = ConfigReader.getSourceCodeAnalysisOutputLocationFromJSON(configPathString);
 		
 		
 		// Obtain the parent directory path of 'repositoryPath' by removing the last
 		// segment, which represents the file itself in the directory
 		Path basePath = repositoryPath.getParent();
-		return new AnalysisModel(inputModels, basePath, sourceCodePath, sourceCodeAnalysisName);
+		return new AnalysisModel(inputModels, basePath, sourceCodePath, sourceCodeAnalysisName, sourceCodeAnalysisOutputLocation);
 
 	}
 

@@ -22,7 +22,9 @@ public class FindSecBugsPatternWeaknessMapper implements PatternWeaknessMapper {
 		// TODO Auto-generated method stub
 		switch (patternName) {
 		case "DES_USAGE":
-			return SecurityCharacteristicWeaknessMappingLookupUtil.findWeaknessByName("Weak Encryption", scwMappings);
+			return SecurityCharacteristicWeaknessMappingLookupUtil.findWeaknessByName("weak_encryption", scwMappings);
+		case "UNENCRYPTED_SOCKET":
+			return SecurityCharacteristicWeaknessMappingLookupUtil.findWeaknessByName("unencrypted_connection", scwMappings);
 		default:
 			return null;
 		}

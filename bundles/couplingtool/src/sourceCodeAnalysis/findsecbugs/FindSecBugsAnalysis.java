@@ -43,36 +43,36 @@ public class FindSecBugsAnalysis implements CodeAnalysis {
 	private static final String END_LINE_KEY = "end";
 	private static final String CLASS_NAME_KEY = "classname";
 
+	private String sourceCodeAnalyisOutputLocation = "";
+	
 	@Override
 	public List<AbstractResult> runCodeAnalysis(String sourceCodeFilePath,
-			PatternWeaknessMapper patternWeaknessMapper) {
-		return saxParsing(sourceCodeFilePath, patternWeaknessMapper);
+			PatternWeaknessMapper patternWeaknessMapper, String sourceCodeAnalyisOutputLocation) {
+		return domParsing(sourceCodeAnalyisOutputLocation, patternWeaknessMapper);
 	}
 
-	private List<AbstractResult> domParsing(String sourceCodeFilePath, PatternWeaknessMapper patternWeaknessMapper) {
+	private List<AbstractResult> domParsing(String sourceCodeAnalyisOutputLocation, PatternWeaknessMapper patternWeaknessMapper) {
 		List<AbstractResult> results = new ArrayList<AbstractResult>();
 
-		Element root = null;
+		
 		Document document = null;
 		try {
 
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			Path path = Path.of(sourceCodeFilePath).toAbsolutePath();
+			Path path = Path.of(sourceCodeAnalyisOutputLocation).toAbsolutePath();
 			File file = path.toFile();
-			System.out.println(file.exists());
 			document = builder.parse(file);
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		NodeList nodeList = root.getElementsByTagName(BUG_ENTRY_TAG);
+		NodeList nodeList = document.getElementsByTagName(BUG_ENTRY_TAG);
 
 		for (int i = 0; i < nodeList.getLength(); i++) {
 
 			Node node = nodeList.item(i);
-
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				Element element = (Element) node;
 
@@ -81,7 +81,6 @@ public class FindSecBugsAnalysis implements CodeAnalysis {
 				}
 
 				String patternName = element.getAttribute(PATTERN_KEY);
-
 				NodeList childNodes = node.getChildNodes();
 
 				String className = "";
@@ -92,8 +91,8 @@ public class FindSecBugsAnalysis implements CodeAnalysis {
 				for (int j = 0; j < childNodes.getLength(); j++) {
 					Node childNode = childNodes.item(j);
 
-					if (node.getNodeType() == Node.ELEMENT_NODE) {
-						Element childElement = (Element) node;
+					if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+						Element childElement = (Element) childNode;
 
 						if (childElement.getTagName().equals(METHOD_TAG)) {
 							className = childElement.getAttribute(CLASS_NAME_KEY);
@@ -130,14 +129,11 @@ public class FindSecBugsAnalysis implements CodeAnalysis {
 		return results;
 	}
 
-	
-	private List<AbstractResult> saxParsing(String sourceCodeFilePath, PatternWeaknessMapper patternWeaknessMapper){
-		List<AbstractResult> results = new ArrayList<AbstractResult>(); 
-		
-		SAXParserFactory factory = SAXParserFactory.newInstance();
-		 factory.setValidating(true);
-		 File result = new File(sourceCodeFilePath);
-		 
-		 return results;
+	public String getSourceCodeAnalyisOutputLocation() {
+		return sourceCodeAnalyisOutputLocation;
+	}
+
+	public void setSourceCodeAnalyisOutputLocation(String sourceCodeAnalyisOutputLocation) {
+		this.sourceCodeAnalyisOutputLocation = sourceCodeAnalyisOutputLocation;
 	}
 }
