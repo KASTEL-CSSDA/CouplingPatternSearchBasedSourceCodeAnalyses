@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="securitycharacteristicweaknessmapping" nsURI="http://www.example.org/securitycharacteristicweaknessmapping"
+    nsPrefix="securitycharacteristicweaknessmapping">
+  <eClassifiers xsi:type="ecore:EClass" name="SecurityCharacteristicWeaknessMappingRoot">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="weaknesses" lowerBound="1"
+        upperBound="-1" eType="#//Weakness" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="securityCharacteristics"
+        lowerBound="1" upperBound="-1" eType="#//SecurityCharacteristic" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Weakness" eSuperTypes="../../edu.kit.kastel.sdq.coupling.models.identifier/model/identifier.ecore#//Entity">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="violates" lowerBound="1"
+        upperBound="-1" eType="#//SecurityCharacteristic"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SecurityCharacteristic" eSuperTypes="../../edu.kit.kastel.sdq.coupling.models.identifier/model/identifier.ecore#//Entity"/>
+</ecore:EPackage>

@@ -7,7 +7,7 @@ import edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping.
  * specific tool. It provides information about a pattern violation.
  */
 
-public abstract class AbstractResult {
+public class AbstractResult {
 	private Weakness weakness;
 	private String methodName;
 	private String className;

@@ -15,9 +15,7 @@ public class AccessAnalysisStereotypeSecurityCharacteristicsMapper {
 		
 		String stereotypeName = stereotype.getName();
 		if(stereotypeName.toLowerCase().equals(ENCRYPTION_CHARACTERISTIC.toLowerCase())) {
-			
 			return SecurityCharacteristicWeaknessMappingLookupUtil.findCharacteristicByName("encryption", root);
-		
 		}
 			
 		return null;

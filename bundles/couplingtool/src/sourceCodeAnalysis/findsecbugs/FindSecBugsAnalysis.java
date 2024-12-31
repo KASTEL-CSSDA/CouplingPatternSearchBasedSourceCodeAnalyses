@@ -117,7 +117,7 @@ public class FindSecBugsAnalysis implements CodeAnalysis {
 				if (weakness == null) {
 					continue;
 				} else {
-					Result result = new Result(weakness, methodName, className, Integer.parseInt(startLine),
+					AbstractResult result = new AbstractResult(weakness, methodName, className, Integer.parseInt(startLine),
 							Integer.parseInt(endLIne));
 					results.add(result);
 				}

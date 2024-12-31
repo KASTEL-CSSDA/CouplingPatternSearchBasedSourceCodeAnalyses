@@ -29,6 +29,7 @@ import edu.kit.kastel.sdq.coupling.models.couplinggraph.Node;
 import edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping.SecurityCharacteristic;
 import edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping.SecurityCharacteristicWeaknessMappingRoot;
 import exceptions.GenerationException;
+import utils.CorrespondenceUtil;
 
 /**
  * The PCMGraphAnnotator class is responsible for adding security properties
@@ -42,8 +43,6 @@ public class PCMGraphAnnotator implements ArchitectureGraphAnnotator {
 	private final Repository repository;
 	private final SecurityCharacteristicWeaknessMappingRoot root;
 	private final Collection<EdgeLinkCorrespondence> edgeLinkCorrespondences;
-
-
 
 	public PCMGraphAnnotator(InputModelsAccessAnalysis inputModels) {
 		this.inputModels = inputModels;
@@ -79,7 +78,13 @@ public class PCMGraphAnnotator implements ArchitectureGraphAnnotator {
 	 *                             process.
 	 */
 	private void processSecurityPropertiesForAllocatedComponents() throws GenerationException {
+
+		Collection<AssemblyConnector> assemblyConnectors = inputModels.getSystem().getConnectors__ComposedStructure()
+				.stream().filter(AssemblyConnector.class::isInstance).map(AssemblyConnector.class::cast)
+				.collect(Collectors.toSet());
+
 		for (LinkingResource linkingR : resourceEnvironment.getLinkingResources__ResourceEnvironment()) {
+
 			for (int i = 0; i < linkingR.getConnectedResourceContainers_LinkingResource().size(); i++) {
 
 				ResourceContainer resourceC1 = linkingR.getConnectedResourceContainers_LinkingResource().get(i);
@@ -96,25 +101,23 @@ public class PCMGraphAnnotator implements ArchitectureGraphAnnotator {
 							.filter(alloc -> alloc.getResourceContainer_AllocationContext().equals(resourceC2))
 							.map(alloc -> alloc.getAssemblyContext_AllocationContext()).collect(Collectors.toSet());
 
-					Collection<AssemblyConnector> assemblyConnectors = inputModels.getSystem()
-							.getConnectors__ComposedStructure().stream().filter(AssemblyConnector.class::isInstance)
-							.map(AssemblyConnector.class::cast).collect(Collectors.toSet());
+					for (AssemblyContext assemblyContextOnResourceC1 : assemblyContextsOnResourceC1) {
 
-					for (AssemblyConnector connector : assemblyConnectors) {
+						for (AssemblyContext assemblyContextOnResourceC2 : assemblyContextsOnResourceC2) {
 
-						for (AssemblyContext assemblyContextOnResourceC1 : assemblyContextsOnResourceC1) {
-							for (AssemblyContext assemblyContextOnResourceC2 : assemblyContextsOnResourceC2) {
-
+							for (AssemblyConnector connector : assemblyConnectors) {
 								if (connector.getProvidingAssemblyContext_AssemblyConnector()
 										.equals(assemblyContextOnResourceC1)
 										|| connector.getProvidingAssemblyContext_AssemblyConnector()
-												.equals(assemblyContextOnResourceC2)
-												&& (connector.getRequiringAssemblyContext_AssemblyConnector()
-														.equals(assemblyContextOnResourceC1)
-														|| connector.getRequiringAssemblyContext_AssemblyConnector()
-																.equals(assemblyContextOnResourceC2))) {
+												.equals(assemblyContextOnResourceC2)) {
 
-									addSecurityProperiesToEdge(linkingR, connector);
+									if (connector.getRequiringAssemblyContext_AssemblyConnector()
+											.equals(assemblyContextOnResourceC1)
+											|| connector.getRequiringAssemblyContext_AssemblyConnector()
+													.equals(assemblyContextOnResourceC2)) {
+
+										addSecurityProperiesToEdge(linkingR, connector);
+									}
 								}
 							}
 						}
@@ -149,14 +152,19 @@ public class PCMGraphAnnotator implements ArchitectureGraphAnnotator {
 
 			for (Edge edge : graph.getEdges()) {
 
-				if(edge.getDestination().getClassName().equals(edge.getSource().getClassName())) {
+				if (edge.getDestination().getClassName().equals(edge.getSource().getClassName())) {
 					continue;
 				}
-				
-				
-				if (edgeMapsToConnector(edge, providingComponent.getEntityName(), requiringComponent.getEntityName(), signatureName)) {
+
+				if (edgeMapsToConnector(edge, providingComponent.getEntityName(), requiringComponent.getEntityName(),
+						signatureName)) {
+
 					
-					EdgeLinkCorrespondence correspondence = new EdgeLinkCorrespondence(edge, linkingResource);
+					
+					
+					
+					
+					EdgeLinkCorrespondence correspondence = CorrespondenceUtil.getOrCreateCorrespondence(edge, linkingResource, edgeLinkCorrespondences);
 					edgeLinkCorrespondences.add(correspondence);
 
 					mapSecurityCharacteristicToEdge(edge, linkingResource);
@@ -188,7 +196,6 @@ public class PCMGraphAnnotator implements ArchitectureGraphAnnotator {
 		String simpleSrcClassName = extractSimpleClassName(srcNode.getClassName());
 		String simpleDstClassName = extractSimpleClassName(dstNode.getClassName());
 		String dstMethodName = dstNode.getMethodName();
-
 
 		return simpleSrcClassName.equals(requiringComponentName) && simpleDstClassName.equals(providingComponentName)
 				&& dstMethodName.equals(serviceName);
@@ -226,18 +233,24 @@ public class PCMGraphAnnotator implements ArchitectureGraphAnnotator {
 
 		return pathparts[pathparts.length - 1];
 	}
-	
-	//We have to remove artificial names for PCM OperationSignatures to increase readability
+
+	// We have to remove artificial names for PCM OperationSignatures to increase
+	// readability
 	private String trimArtificialPCMOperationSignaturesName(String artificialSignatureName) {
-		
+
 		String[] splitForOperationMarkers = artificialSignatureName.split("::");
-		
-		String[] removedParameters = splitForOperationMarkers[splitForOperationMarkers.length -1].split("\\(");
-		
+
+		String[] removedParameters = splitForOperationMarkers[splitForOperationMarkers.length - 1].split("\\(");
+
 		return removedParameters[0];
 	}
-	
+
 	public Collection<EdgeLinkCorrespondence> getEdgeLinkCorrespondences() {
+		return edgeLinkCorrespondences;
+	}
+
+	@Override
+	public Collection<EdgeLinkCorrespondence> getEdgeLinkCorrespondence() {
 		return edgeLinkCorrespondences;
 	}
 

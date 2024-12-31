@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/spoon-core-10.4.1-jar-with-dependencies.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/json-1.8.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
@@ -20,6 +19,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/spoon-core-10.4.1-jar-with-dependencies.jar"/>
 	<classpathentry kind="lib" path="lib/CryptoAnalysis-4.0.1-jar-with-dependencies.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

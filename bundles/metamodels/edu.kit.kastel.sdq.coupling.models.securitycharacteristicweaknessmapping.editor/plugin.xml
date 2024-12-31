@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <!-- @generated securitycharacteristicweaknessmapping -->
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping.presentation.SecuritycharacteristicweaknessmappingModelWizardID"
+            name="%_UI_SecuritycharacteristicweaknessmappingModelWizard_label"
+            class="edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping.presentation.SecuritycharacteristicweaknessmappingModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/SecuritycharacteristicweaknessmappingModelFile.gif">
+         <description>%_UI_SecuritycharacteristicweaknessmappingModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <!-- @generated securitycharacteristicweaknessmapping -->
+      <editor
+            id="edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping.presentation.SecuritycharacteristicweaknessmappingEditorID"
+            name="%_UI_SecuritycharacteristicweaknessmappingEditor_label"
+            icon="icons/full/obj16/SecuritycharacteristicweaknessmappingModelFile.gif"
+            extensions="securitycharacteristicweaknessmapping"
+            class="edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping.presentation.SecuritycharacteristicweaknessmappingEditor"
+            contributorClass="edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping.presentation.SecuritycharacteristicweaknessmappingActionBarContributor">
+      </editor>
+   </extension>
+
+</plugin>

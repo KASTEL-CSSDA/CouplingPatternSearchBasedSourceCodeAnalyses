@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel"
+    modelDirectory="/edu.kit.kastel.sdq.coupling.models.couplinggraph/src-gen"
+    creationIcons="false" editDirectory="/edu.kit.kastel.sdq.coupling.models.couplinggraph.edit/src-gen"
+    editorDirectory="/edu.kit.kastel.sdq.coupling.models.couplinggraph.editor/src-gen"
+    modelPluginID="edu.kit.kastel.sdq.coupling.models.couplinggraph" modelName="Couplinggraph"
+    rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" codeFormatting="true"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="5.0" copyrightFields="false"
+    usedGenPackages="../../edu.kit.kastel.sdq.coupling.models.identifier/model/identifier.genmodel#//identifier ../../edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping/model/securitycharacteristicweaknessmapping.genmodel#//securitycharacteristicweaknessmapping"
+    operationReflection="true" importOrganizing="true">
+  <foreignModel>couplinggraph.ecore</foreignModel>
+  <testsDirectory xsi:nil="true"/>
+  <genPackages prefix="Couplinggraph" basePackage="edu.kit.kastel.sdq.coupling.models"
+      disposableProviderFactory="true" ecorePackage="couplinggraph.ecore#/">
+    <genClasses ecoreClass="couplinggraph.ecore#//CouplingGraph">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference couplinggraph.ecore#//CouplingGraph/nodes"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference couplinggraph.ecore#//CouplingGraph/edges"/>
+    </genClasses>
+    <genClasses ecoreClass="couplinggraph.ecore#//Edge">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference couplinggraph.ecore#//Edge/source"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference couplinggraph.ecore#//Edge/destination"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference couplinggraph.ecore#//Edge/securityCharacteristics"/>
+    </genClasses>
+    <genClasses ecoreClass="couplinggraph.ecore#//Node">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference couplinggraph.ecore#//Node/weaknesses"/>
+    </genClasses>
+    <genClasses ecoreClass="couplinggraph.ecore#//MethodIdentification">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute couplinggraph.ecore#//MethodIdentification/className"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute couplinggraph.ecore#//MethodIdentification/methodName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute couplinggraph.ecore#//MethodIdentification/startLine"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute couplinggraph.ecore#//MethodIdentification/endLine"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

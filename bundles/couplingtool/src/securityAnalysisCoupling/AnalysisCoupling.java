@@ -1,8 +1,15 @@
 package securityAnalysisCoupling;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import architecture.ArchitectureGraphAnnotator;
+import architecture.PCM.EdgeLinkCorrespondence;
+import architecture.PCM.InputModelsAccessAnalysis;
+import architecture.PCM.backtransformation.UnencryptedConnectionBacktransformationStrategy;
 import astGraphBuilder.ASTGraphBuilder;
 import edu.kit.kastel.sdq.coupling.models.couplinggraph.CouplingGraph;
 import edu.kit.kastel.sdq.coupling.models.couplinggraph.Edge;
@@ -12,19 +19,24 @@ import edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping.
 import exceptions.GenerationException;
 import exceptions.InputException;
 import exceptions.PatternViolationClassException;
+import securityAnalysisCoupling.traversalstrategies.TraversalStrategy;
+import securityAnalysisCoupling.traversalstrategies.TraversalStrategyFactory;
 import sourceCodeAnalysis.AbstractResult;
 import sourceCodeAnalysis.CodeAnalysis;
 import sourceCodeAnalysis.PatternWeaknessMapper;
+import utils.CorrespondenceUtil;
 
 /**
- * This class performs security coupling analysis based on provided source code, a tool for identifying pattern violations, and loaded model files.
- * It follows these steps:
+ * This class performs security coupling analysis based on provided source code,
+ * a tool for identifying pattern violations, and loaded model files. It follows
+ * these steps:
  * 
- * 1. Identifies pattern violations using the specified tool.
- * 2. Generates an Abstract Syntax Tree (AST) from the source code.
- * 3. Annotates the graph with security properties from the architectural domain using an interface.
- * 4. Adds pattern violations to the graph based on the tool results.
- * 5. Constructs violated security properties based on the annotated security properties on the edges and the pattern violations mapped in the nodes.
+ * 1. Identifies pattern violations using the specified tool. 2. Generates an
+ * Abstract Syntax Tree (AST) from the source code. 3. Annotates the graph with
+ * security properties from the architectural domain using an interface. 4. Adds
+ * pattern violations to the graph based on the tool results. 5. Constructs
+ * violated security properties based on the annotated security properties on
+ * the edges and the pattern violations mapped in the nodes.
  */
 public class AnalysisCoupling {
 	private CodeAnalysis tool;
@@ -32,6 +44,7 @@ public class AnalysisCoupling {
 	private ASTGraphBuilder graphBuilder;
 	private CouplingGraph graph;
 	private ArchitectureGraphAnnotator archGraphAnnotator;
+	private BacktransformationFactory backTransformationFactory;
 
 	/**
 	 * Constructs a new SecurityCouplingAnalysis object.
@@ -44,17 +57,19 @@ public class AnalysisCoupling {
 	 *                           models.
 	 * @param sourceCodeFilePath The file path to the source code to be
 	 * 
-	 * @param graphBuilder       The builder for generating the Abstract Syntax Tree
-	 *                           (AST) graph.
+	 * @param graphBuilder       The builder for generating the nullAbstract Syntax
+	 *                           Tree (AST) graph.
 	 * 
 	 */
 	public AnalysisCoupling(CodeAnalysis tool, PatternWeaknessMapper resultMapper, String sourceCodeFilePath,
-			ASTGraphBuilder graphBuilder, ArchitectureGraphAnnotator archGraphAnnotator) {
+			ASTGraphBuilder graphBuilder, ArchitectureGraphAnnotator archGraphAnnotator,
+			BacktransformationFactory backTransformationFactory) {
 
 		this.tool = tool;
 		this.resultMapper = resultMapper;
 		this.graphBuilder = graphBuilder;
 		this.archGraphAnnotator = archGraphAnnotator;
+		this.backTransformationFactory = backTransformationFactory;
 	}
 
 	/**
@@ -72,14 +87,15 @@ public class AnalysisCoupling {
 	 */
 	public void runSecurityCouplingAnalysis(String sourceCodeFilePath, String sourceCodeAnalysisOutputLocation)
 			throws GenerationException, PatternViolationClassException, InputException {
-		
+
 		graphBuilder.buildASTGraph();
 		graph = graphBuilder.getGraph();
 		archGraphAnnotator.annotateGraph(graph);
-		
-		List<AbstractResult> toolResults = tool.runCodeAnalysis(sourceCodeFilePath, resultMapper, sourceCodeAnalysisOutputLocation);
+
+		List<AbstractResult> toolResults = tool.runCodeAnalysis(sourceCodeFilePath, resultMapper,
+				sourceCodeAnalysisOutputLocation);
 		addWeaknessesToGraph(toolResults);
-		buildViolatedSecurityProperties();
+		performViolationCalculation();
 	}
 
 	/**
@@ -103,54 +119,101 @@ public class AnalysisCoupling {
 	private void addWeaknessesToGraph(List<AbstractResult> toolResults)
 			throws GenerationException, InputException, PatternViolationClassException {
 		for (AbstractResult currResult : toolResults) {
-
-			for(Node node : graph.getNodes()) {
-				
-				if(node.getClassName().equals(currResult.getClassName()) && node.getMethodName().equals(currResult.getMethodName())) {
-					
-					if(!node.getWeaknesses().contains(currResult.getWeakness())) {
-						node.getWeaknesses().add(currResult.getWeakness());
-					}
-					
-					break;
-				}
-				
+			
+			
+			if(currResult.getMethodName().isEmpty()) {
+				addWeaknessToGraphCodeLineBased(currResult);
+			} else {
+				addWeaknessToGraphMethodNameBased(currResult);
 			}
+
+			
 		}
 	}
 
-	/**
-	 * Creates and assigns a pattern violation to a node.
-	 *
-	 * @param edge       The graph edge.
-	 * @param toolResult The Tool result.
-	 * @throws PatternViolationClassException If a wrong pattern violation name is
-	 *                                        mapped.
-	 * @throws GenerationException            If the PatternViolationType is not
-	 *                                        found in the model. This should only
-	 *                                        happen in case of an error in the
-	 *                                        model instance.
-	 * @throws InputException                 If an input exception occurs during
-	 *                                        analysis.
-	 */
-	private void assignWeaknessToNode(AbstractResult toolResult)
-			throws PatternViolationClassException, GenerationException, InputException {
+	private void addWeaknessToGraphCodeLineBased(AbstractResult currResult) {
 		
-//		IdentifiedVulnerability vulnerability = CouplingGraphPatternViolationModelGenerator.generateIdentifiedVulnerability();
-//		int startCodeLine = toolResult.getStartCodeLine();
-//		int endCodeLine = toolResult.getEndCodeLine();
-//		vulnerability.setStart(startCodeLine);
-//		if (isMoreThanOneCodeLine(startCodeLine, endCodeLine)) {
-//			vulnerability.setEnd(endCodeLine);
+		Node targetNode = null;
+		
+		//find direkt node 
+		//currently we do not handle "inner call" nodes, so disabled
+//		for(Node node : graph.getNodes()) {
+//			if(node.getClassName().equals(currResult.getClassName()) && node.getStartLine() == currResult.getStartCodeLine() && node.getEndLine() == currResult.getEndCodeLine()) {
+//				targetNode = node;
+//				break;
+//			}
 //		}
-//		vulnerability.setMethodName(toolResult.getMethodName());
-//		vulnerability.setClassName(toolResult.getClassName());
-//		
-//		PatternViolationType patternViolationType = resultMapper
-//				.mapToolPatternViolationName(toolResult.getViolatedClass());
-//		vulnerability.setVulnerabilityType(patternViolationType);
-//		Node calledNode = edge.getDestination();
-//		calledNode.getDetectedVulnerability().add(vulnerability);
+		
+		//find enclosing node
+		if(targetNode == null) {
+			for(Node node : graph.getNodes()) {
+				if(node.getClassName().equals(currResult.getClassName()) && node.getStartLine() < currResult.getStartCodeLine() && node.getEndLine() > currResult.getEndCodeLine()) {
+					targetNode = node;
+					break;
+				}
+			}
+		}
+		
+		if(targetNode != null) {
+			addWeaknessToNode(targetNode, currResult.getWeakness());
+		}
+		
+	}
+
+	private void addWeaknessToGraphMethodNameBased(AbstractResult currResult) {
+		for (Node node : graph.getNodes()) {
+
+			if (node.getClassName().equals(currResult.getClassName())
+					&& node.getMethodName().equals(currResult.getMethodName())) {
+
+				addWeaknessToNode(node, currResult.getWeakness());
+				
+				break;
+			}
+
+		}
+	}
+	
+	private void addWeaknessToNode(Node node, Weakness weakness) {
+		if (!node.getWeaknesses().contains(weakness)) {
+			System.out.println("Added Weakness To Node: %s to %s.%s".formatted(weakness.getName(), node.getClassName(), node.getMethodName()));
+			node.getWeaknesses().add(weakness);
+		}
+	}
+
+	private void performViolationCalculation() {
+
+		Collection<Node> nodesWithWeaknesses = graph.getNodes().stream().filter(node -> !node.getWeaknesses().isEmpty())
+				.collect(Collectors.toSet());
+
+		for (Node nodeWithWeakness : nodesWithWeaknesses) {
+			for (Weakness weakness : nodeWithWeakness.getWeaknesses()) {
+
+				TraversalStrategy traversal = TraversalStrategyFactory.getTraversalStrategy(weakness, graph,
+						archGraphAnnotator.getEdgeLinkCorrespondence());
+
+				Collection<Edge> violatedEdgesForNodeAndWeakness = traversal.findViolations(nodeWithWeakness, weakness);
+
+				for (Edge edge : violatedEdgesForNodeAndWeakness) {
+					Collection<EdgeLinkCorrespondence> fittingCorrespondences = CorrespondenceUtil
+							.getCorrespondencesForEdge(edge, archGraphAnnotator.getEdgeLinkCorrespondence());
+
+					for (EdgeLinkCorrespondence correspondence : fittingCorrespondences) {
+
+						performBacktransformation(weakness, correspondence);
+
+					}
+				}
+
+			}
+		}
+
+	}
+
+	private void performBacktransformation(Weakness weakness, EdgeLinkCorrespondence correspondence) {
+		BacktransformationStrategy strategy = backTransformationFactory.createStrategy(weakness);
+
+		strategy.transformWeaknessForCorrespondence(weakness, correspondence);
 
 	}
 
@@ -166,43 +229,4 @@ public class AnalysisCoupling {
 		return start < end;
 	}
 
-	/**
-	 * Builds violated security properties for edges in the graph.
-	 *
-	 * This method iterates through all the edges in the graph and processes pattern
-	 * violations associated with their source and destination nodes. It calls the
-	 * 'processPatternViolations' method for both the source and destination nodes,
-	 * passing the edge as a parameter to identify the relationship.
-	 */
-	private void buildViolatedSecurityProperties() {
-
-		for (Edge edge : graph.getEdges()) {
-			Node srcNode = edge.getSource();
-			Node dstNode = edge.getDestination();
-
-			processPatternViolations(srcNode, edge);
-			processPatternViolations(dstNode, edge);
-		}
-	}
-
-	/**
-	 * Processes pattern violations for a specific node and edge combination.
-	 *
-	 * This method analyzes the security properties by the given edge in relation to
-	 * the node's associated pattern violations. For each security property, it
-	 * checks if a corresponding violated property exists within the node's pattern
-	 * violations, adding it to the violation list when found.
-	 *
-	 * @param node The node for which pattern violations are examined.
-	 * @param edge The edge that contains security properties to be checked.
-	 */
-	private void processPatternViolations(Node node, Edge edge) {
-		for (SecurityCharacteristic securityCharacteristic : edge.getSecurityCharacteristics()) {
-			for (Weakness weakness : node.getWeaknesses()) {
-				if (weakness.getViolates().equals(securityCharacteristic)) {
-
-				}
-			}
-		}
-	}
 }

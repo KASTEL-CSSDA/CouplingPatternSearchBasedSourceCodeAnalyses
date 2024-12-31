@@ -25,6 +25,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.json.JSONException;
 import architecture.ArchitectureGraphAnnotator;
 import architecture.PCM.PCMGraphAnnotator;
+import architecture.PCM.backtransformation.BacktransformationFactoryAccessAnalysis;
 import astGraphBuilder.spoon.SpoonASTGraphBuilder;
 import utils.InputUtils;
 import models.AnalysisModel;
@@ -32,8 +33,6 @@ import securityAnalysisCoupling.AnalysisCoupling;
 import sourceCodeAnalysis.CodeAnalysis;
 import sourceCodeAnalysis.PatternWeaknessMapper;
 import sourceCodeAnalysis.SourceCodeAnalysisFactory;
-import sourceCodeAnalysis.cognicrypt.CognicryptCodeAnalysis;
-import sourceCodeAnalysis.cognicrypt.CognicryptPatternViolationMapper;
 
 /**
  * inspired by
@@ -86,6 +85,7 @@ public class ModelCreationHandler extends AbstractHandler {
 
 		String sourceCodePath = models.getSourceCodePath();
 
+		
 		ArchitectureGraphAnnotator archGraphAnnotator = new PCMGraphAnnotator(models.getInputModels());
 
 		String sourceCodeAnalysisName = models.getSourceCodeAnalysisName();
@@ -105,7 +105,7 @@ public class ModelCreationHandler extends AbstractHandler {
 		
 		AnalysisCoupling securityCouplingAnalysis = new AnalysisCoupling(sourceCodeAnalysis,
 				patternWeaknessMapper, sourceCodePath, new SpoonASTGraphBuilder(sourceCodePath),
-				archGraphAnnotator);
+				archGraphAnnotator, new BacktransformationFactoryAccessAnalysis(models.getInputModels()));
 
 		try {
 			securityCouplingAnalysis.runSecurityCouplingAnalysis(sourceCodePath, models.getSourceCodeAnalysisOutputLocation());
@@ -113,6 +113,9 @@ public class ModelCreationHandler extends AbstractHandler {
 
 			e.printStackTrace();
 		}
+		
+		models.getInputModels().updateModels();
+		
 		return list;
 	}
 

@@ -15,10 +15,7 @@ Require-Bundle: org.eclipse.emf.ecore;bundle-version="2.23.0",
  org.apache.log4j;bundle-version="1.2.15",
  org.modelversioning.emfprofile,
  edu.kit.kastel.sdq.coupling.models.couplinggraph,
- edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping,
- de.cognicrypt.core;bundle-version="1.0.0",
- de.cognicrypt.crysl.handler;bundle-version="1.0.0",
- de.cognicrypt.staticanalyzer;bundle-version="1.0.0"
+ edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping
 Automatic-Module-Name: usingEMFModel
 Bundle-ClassPath: .,
  lib/json-1.8.jar,

@@ -66,21 +66,32 @@ public class SpoonASTGraphBuilder extends CtScanner implements ASTGraphBuilder {
 		if(className.contains("Main")) {
 			return;
 		}
-		Node methodNode = getOrCreateAndAddNode(className, methodName);
+		
+		Node methodNode = CouplingGraphModelGenerationUtils.getOrCreateNode(className, methodName, graph);
+		graph.getNodes().add(methodNode);
+
+		methodNode.setStartLine(visitedMethod.getPosition().getLine());
+		methodNode.setEndLine(visitedMethod.getPosition().getEndLine());
 
 		for (CtInvocation<?> invocation : visitedMethod.getElements(new TypeFilter<>(CtInvocation.class))) {
+			
 			String invocedMethodName = invocation.getExecutable().getSimpleName();
 			String invocedClassName = invocation.getExecutable().getDeclaringType().getQualifiedName();
+			
 			if(invocedClassName.startsWith("java.")) {
 				continue;
 			}
-			Node invocationNode = getOrCreateAndAddNode(invocedClassName, invocedMethodName);
-
+			
+			Node invocationNode = CouplingGraphModelGenerationUtils.getOrCreateNode(invocedClassName, invocedMethodName,graph);
+			graph.getNodes().add(invocationNode);
+			invocationNode.setStartLine(invocation.getPosition().getLine());
+			invocationNode.setEndLine(invocation.getPosition().getLine());
+			
 			Edge edge = CouplingGraphModelGenerationUtils.generateEdge();
 			edge.setSource(methodNode);
 			edge.setDestination(invocationNode);
 			graph.getEdges().add(edge);
-			
+		//	System.out.println("New Edge: %s.%s ---> %s.%s".formatted(methodNode.getClassName(),methodNode.getMethodName(), invocationNode.getClassName(), invocationNode.getMethodName()));
 
 		}
 	}
@@ -143,20 +154,5 @@ public class SpoonASTGraphBuilder extends CtScanner implements ASTGraphBuilder {
 		return graph.getEdges();
 	}
 	
-	private Node getOrCreateAndAddNode(String className, String methodName) {
-		Optional<Node> searchedNode = graph.getNodes().stream().filter(node -> node.getClassName().equals(className) && node.getMethodName().equals(methodName)).findFirst();
-		
-	
-		if(searchedNode.isPresent()) {
-			return searchedNode.get();
-		} else {
-			Node methodNode = CouplingGraphModelGenerationUtils.generateNode();
-			methodNode.setClassName(className);
-			methodNode.setMethodName(methodName);
-			
-			graph.getNodes().add(methodNode);
-			
-			return methodNode;
-		}
-	}
+
 }

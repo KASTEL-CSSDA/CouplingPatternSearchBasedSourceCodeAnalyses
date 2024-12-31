@@ -1,5 +1,8 @@
 package architecture;
 
+import java.util.Collection;
+
+import architecture.PCM.EdgeLinkCorrespondence;
 import edu.kit.kastel.sdq.coupling.models.couplinggraph.CouplingGraph;
 
 /**
@@ -20,4 +23,5 @@ public interface ArchitectureGraphAnnotator {
 	 * 
 	 */ 
 	public void annotateGraph(CouplingGraph graph);
+	public Collection<EdgeLinkCorrespondence> getEdgeLinkCorrespondence();
 }

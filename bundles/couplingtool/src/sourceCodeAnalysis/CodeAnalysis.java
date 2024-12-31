@@ -13,7 +13,7 @@ public interface CodeAnalysis {
 	 * Runs code analysis on the specified source code file and returns a list of
 	 * abstract results representing the analysis outcomes.
 	 *
-	 * @param sourceCodeFilePath The path to the source code file to be analyzed.
+	 * @param sourceCodeFilePath The path to the source code file to be analyzed.null
 	 * @return A list of abstract results from the code analysis.
 	 */
 	public List<AbstractResult> runCodeAnalysis(String sourceCodeFilePath, PatternWeaknessMapper patternWeaknessMapper, String sourceCodeAnalysisOutputLocation);

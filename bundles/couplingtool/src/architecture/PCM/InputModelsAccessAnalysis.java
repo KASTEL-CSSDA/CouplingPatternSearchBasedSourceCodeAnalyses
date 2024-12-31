@@ -47,8 +47,8 @@ public class InputModelsAccessAnalysis {
 	private final SecurityCharacteristicWeaknessMappingRoot root;
 	private final ProfileApplication resourceEnvironmentProfile;
 	private final System system;
+	private final String resourceEnvironmentPath;
 	
-
 	public SecurityCharacteristicWeaknessMappingRoot getRoot() {
 		return root;
 	}
@@ -61,7 +61,7 @@ public class InputModelsAccessAnalysis {
 
 
 
-	public InputModelsAccessAnalysis(ResourceEnvironment resourceEnvironment, Allocation allocation, Repository repository,
+	public InputModelsAccessAnalysis(ResourceEnvironment resourceEnvironment, String resourceEnvironmentPath, Allocation allocation, Repository repository,
 			SecurityCharacteristicWeaknessMappingRoot root, ProfileApplication resourceEnvironmentProfile, System system) {
 		super();
 		this.resourceEnvironment = resourceEnvironment;
@@ -70,6 +70,7 @@ public class InputModelsAccessAnalysis {
 		this.root = root;
 		this.resourceEnvironmentProfile = resourceEnvironmentProfile;
 		this.system = system;
+		this.resourceEnvironmentPath = resourceEnvironmentPath;
 	}
 	
 	
@@ -106,6 +107,29 @@ public class InputModelsAccessAnalysis {
 		SecurityCharacteristicWeaknessMappingRoot mappingRoot = (SecurityCharacteristicWeaknessMappingRoot) resourceMappingModel.getContents().get(0);
 		System system = (System) resourceSystem.getContents().get(0);
 
-		return new InputModelsAccessAnalysis(resourceEnvironment, allocation, repository, mappingRoot, resourceEnvironmentProfile, system);
+		return new InputModelsAccessAnalysis(resourceEnvironment, resourceEnvironmentPath, allocation, repository, mappingRoot, resourceEnvironmentProfile, system);
+	}
+	
+	public void updateModels() {
+		ResourceSetImpl resSet = new ResourceSetImpl();
+		URI resourceEnvironmentUri = URI.createFileURI(Path.of(resourceEnvironmentPath).toAbsolutePath().toString());
+		Resource resourceEnvironmentResource = resSet.getResource(resourceEnvironmentUri, true);
+		
+		try {
+			resourceEnvironmentResource.load(null);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		resourceEnvironmentResource.getContents().set(1, resourceEnvironmentProfile);
+		
+		try {
+			resourceEnvironmentResource.save(null);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }

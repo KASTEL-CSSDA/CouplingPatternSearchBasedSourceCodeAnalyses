@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="couplinggraph" nsURI="http://www.example.org/couplinggraph"
+    nsPrefix="couplinggraph">
+  <eClassifiers xsi:type="ecore:EClass" name="CouplingGraph">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="nodes" upperBound="-1"
+        eType="#//Node" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="edges" upperBound="-1"
+        eType="#//Edge"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Edge" eSuperTypes="../../edu.kit.kastel.sdq.coupling.models.identifier/model/identifier.ecore#//IdentifiedElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="source" lowerBound="1"
+        eType="#//Node"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="destination" lowerBound="1"
+        eType="#//Node"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="securityCharacteristics"
+        upperBound="-1" eType="ecore:EClass ../../edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping/model/securitycharacteristicweaknessmapping.ecore#//SecurityCharacteristic"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Node" eSuperTypes="../../edu.kit.kastel.sdq.coupling.models.identifier/model/identifier.ecore#//IdentifiedElement #//MethodIdentification">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="weaknesses" upperBound="-1"
+        eType="ecore:EClass ../../edu.kit.kastel.sdq.coupling.models.securitycharacteristicweaknessmapping/model/securitycharacteristicweaknessmapping.ecore#//Weakness"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MethodIdentification">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="className" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="methodName" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="startLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="endLine" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+</ecore:EPackage>
