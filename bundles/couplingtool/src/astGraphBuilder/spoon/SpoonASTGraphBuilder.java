@@ -62,7 +62,8 @@ public class SpoonASTGraphBuilder extends CtScanner implements ASTGraphBuilder {
 		}
 		String className = visitedMethod.getParent(CtClass.class).getQualifiedName();
 		String methodName = visitedMethod.getSimpleName();
-		
+		int startLine = visitedMethod.getPosition().getLine();
+		int endLine = visitedMethod.getPosition().getEndLine();
 		if(className.contains("Main")) {
 			return;
 		}
@@ -70,22 +71,30 @@ public class SpoonASTGraphBuilder extends CtScanner implements ASTGraphBuilder {
 		Node methodNode = CouplingGraphModelGenerationUtils.getOrCreateNode(className, methodName, graph);
 		graph.getNodes().add(methodNode);
 
-		methodNode.setStartLine(visitedMethod.getPosition().getLine());
-		methodNode.setEndLine(visitedMethod.getPosition().getEndLine());
+		
+		
+		methodNode.setStartLine(startLine);
+		methodNode.setEndLine(endLine);
 
 		for (CtInvocation<?> invocation : visitedMethod.getElements(new TypeFilter<>(CtInvocation.class))) {
 			
 			String invocedMethodName = invocation.getExecutable().getSimpleName();
 			String invocedClassName = invocation.getExecutable().getDeclaringType().getQualifiedName();
-			
+			int invocedStartLine = invocation.getPosition().getLine();
+			int invocedEndLine = invocation.getPosition().getEndLine();
 			if(invocedClassName.startsWith("java.")) {
 				continue;
 			}
 			
 			Node invocationNode = CouplingGraphModelGenerationUtils.getOrCreateNode(invocedClassName, invocedMethodName,graph);
 			graph.getNodes().add(invocationNode);
-			invocationNode.setStartLine(invocation.getPosition().getLine());
-			invocationNode.setEndLine(invocation.getPosition().getLine());
+			
+			if(!(invocationNode.getStartLine() < invocedStartLine || invocationNode.getEndLine() > invocedEndLine)) {
+				invocationNode.setStartLine(invocedStartLine);
+				invocationNode.setEndLine(invocedEndLine);
+			}
+			
+		
 			
 			Edge edge = CouplingGraphModelGenerationUtils.generateEdge();
 			edge.setSource(methodNode);

@@ -25,7 +25,7 @@ public class FindSecBugsPatternWeaknessMapper implements PatternWeaknessMapper {
 			return SecurityCharacteristicWeaknessMappingLookupUtil.findWeaknessByName("weak_encryption", scwMappings);
 		case "UNENCRYPTED_SOCKET":
 			return SecurityCharacteristicWeaknessMappingLookupUtil.findWeaknessByName("unencrypted_connection", scwMappings);
-		case "HARD_CODED_KEY":
+		case "HARD_CODE_KEY":
 			return SecurityCharacteristicWeaknessMappingLookupUtil.findWeaknessByName("hard_coded_key", scwMappings);
 		default:
 			return null;

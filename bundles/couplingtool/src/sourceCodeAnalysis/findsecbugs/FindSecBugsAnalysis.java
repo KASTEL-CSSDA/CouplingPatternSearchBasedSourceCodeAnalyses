@@ -76,18 +76,20 @@ public class FindSecBugsAnalysis implements CodeAnalysis {
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				Element element = (Element) node;
 
+		
 				if (!element.getAttribute(CATEGORY_KEY).equals(CATEGORY_SECURITY)) {
 					continue;
 				}
 
 				String patternName = element.getAttribute(PATTERN_KEY);
+				
 				NodeList childNodes = node.getChildNodes();
 
 				String className = "";
 				String methodName = "";
 				String startLine = "";
 				String endLIne = "";
-
+				
 				for (int j = 0; j < childNodes.getLength(); j++) {
 					Node childNode = childNodes.item(j);
 
@@ -104,6 +106,11 @@ public class FindSecBugsAnalysis implements CodeAnalysis {
 							endLIne = childElement.getAttribute(END_LINE_KEY);
 						}
 					}
+					
+					if(!className.isBlank() && !methodName.isBlank() && !startLine.isBlank() && !endLIne.isBlank()){
+						break;
+					}
+					
 				}
 
 				Weakness weakness = null;
@@ -125,7 +132,6 @@ public class FindSecBugsAnalysis implements CodeAnalysis {
 			}
 
 		}
-
 		return results;
 	}
 

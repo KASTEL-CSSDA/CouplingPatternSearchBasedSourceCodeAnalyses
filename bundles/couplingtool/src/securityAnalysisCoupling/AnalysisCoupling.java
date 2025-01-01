@@ -137,12 +137,12 @@ public class AnalysisCoupling {
 		
 		//find direkt node 
 		//currently we do not handle "inner call" nodes, so disabled
-//		for(Node node : graph.getNodes()) {
-//			if(node.getClassName().equals(currResult.getClassName()) && node.getStartLine() == currResult.getStartCodeLine() && node.getEndLine() == currResult.getEndCodeLine()) {
-//				targetNode = node;
-//				break;
-//			}
-//		}
+		for(Node node : graph.getNodes()) {
+			if(node.getClassName().equals(currResult.getClassName()) && node.getStartLine() == currResult.getStartCodeLine() && node.getEndLine() == currResult.getEndCodeLine()) {
+				targetNode = node;
+				break;
+			}
+		}
 		
 		//find enclosing node
 		if(targetNode == null) {

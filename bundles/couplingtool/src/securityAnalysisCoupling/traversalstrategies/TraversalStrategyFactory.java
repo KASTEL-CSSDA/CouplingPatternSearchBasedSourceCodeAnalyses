@@ -15,6 +15,8 @@ public static TraversalStrategy getTraversalStrategy(Weakness weakness, Coupling
 			return new UnencryptedConnection_TraversalStrategy(graph, correspondences);
 		case "weak_encryption":
 			return new WeakEncryption_TraversalStrategy(graph, correspondences);
+		case "hard_coded_key":
+			return new HardCodedKey_TraversalStrategy(graph, correspondences);
 		default:
 			return null;
 		}
