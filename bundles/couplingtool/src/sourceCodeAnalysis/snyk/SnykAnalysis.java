@@ -103,8 +103,10 @@ public class SnykAnalysis implements CodeAnalysis{
 		//We assume no nested classes and java, therefore, parsing the qualified class name from the file name
 		String uri = artefactLocation.getString(FILE_KEY);
 		
+		String[] srcRemainderSplit = uri.split("src/");
+		String packagePath = srcRemainderSplit[1];
 		
-		String className = uri.replace(".java", "");
+		String className = packagePath.replace(".java", "");
 		className = className.replace("/", ".");
 		
 		return className;

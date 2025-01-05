@@ -74,6 +74,11 @@ public class SemgrepAnalysis implements CodeAnalysis{
 			e.printStackTrace();
 		}
 		
+		if(weakness == null) {
+			System.err.println("Unknown Pattern: " + pattern);
+			return;
+		}
+		
 		AbstractResult resultEntry = new AbstractResult(weakness, "", className, startLine, endLine);
 		
 		abstractResults.add(resultEntry);
@@ -84,10 +89,13 @@ public class SemgrepAnalysis implements CodeAnalysis{
 	private String parseClassName(JSONObject result) {
 		
 		String path = result.getString(JAVA_FILE_KEY_PATH);
-		
-		
+		String packagePath = "";
+		if(path.startsWith("src/")) {
 		String[] srcRemainderSplit = path.split("src/");
-		String packagePath = srcRemainderSplit[1];
+		packagePath = srcRemainderSplit[1];
+		} else {
+			packagePath = path;
+		}
 		
 		String className = packagePath.replace(".java", ""); 
 		className = className.replace("/", ".");

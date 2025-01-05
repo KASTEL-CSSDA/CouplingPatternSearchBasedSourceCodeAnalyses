@@ -14,8 +14,8 @@ public class SemgrepPatternWeaknessMapper implements PatternWeaknessMapper {
 	private static final String UNENCRYPTED_SOCKED = "java.lang.security.audit.crypto.unencrypted-socket.unencrypted-socket";
 	private static final String DES_USAGE = "java.lang.security.audit.crypto.desede-is-deprecated.desede-is-deprecated";
 	private static final String DES_USAGE_2 = "java.lang.security.audit.crypto.des-is-deprecated.des-is-deprecated";
-	
-	
+	private static final String HARD_CODED_SECRET = "java.lang.security.crypto.hardcoded-secret-key-spec.hardcoded-secret-key-spec";
+
 	public SemgrepPatternWeaknessMapper(SecurityCharacteristicWeaknessMappingRoot scwMappings) {
 		super();
 		this.scwMappings = scwMappings;
@@ -32,6 +32,8 @@ public class SemgrepPatternWeaknessMapper implements PatternWeaknessMapper {
 		case UNENCRYPTED_SOCKED:
 			return SecurityCharacteristicWeaknessMappingLookupUtil.findWeaknessByName("unencrypted_connection",
 					scwMappings);
+		case HARD_CODED_SECRET:
+			return SecurityCharacteristicWeaknessMappingLookupUtil.findWeaknessByName("hard_coded_key", scwMappings);
 		default:
 			return null;
 		}
